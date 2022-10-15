@@ -18,7 +18,10 @@ void dumpPath(const PathD &path) {
         if (index > 0) {
             std::cout << ",";
         }
-        std::cout << "(" << path[index].x << "," << path[index].y << ")";
+        std::cout
+            << std::fixed
+            << std::setprecision(CLIPPER_PRECISION)
+            << "(" << path[index].x << "," << path[index].y << ")";
     }
     std::cout << "]" << std::endl;
 }
