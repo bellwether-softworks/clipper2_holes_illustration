@@ -2,13 +2,17 @@
 #include <fstream>
 #include <sstream>
 #include "clipper2/clipper.h"
+#include "clipper2/clipper.offset.h"
 
 #define CLIPPER_PRECISION 6
+#define INFLATION_DELTA 1.0e-5
 
 using Clipper2Lib::PathD;
 using Clipper2Lib::PathsD;
 using Clipper2Lib::PointD;
 using Clipper2Lib::FillRule;
+using Clipper2Lib::JoinType;
+using Clipper2Lib::EndType;
 using Clipper2Lib::Union;
 
 void dumpPath(const PathD &path) {
@@ -64,7 +68,17 @@ int main(int argc, char **argv) {
             }
         }
 
-        subjects.push_back(current_path);
+        auto to_inflate = PathsD {};
+
+        to_inflate.push_back(current_path);
+
+        auto inflated = Clipper2Lib::InflatePaths(to_inflate, INFLATION_DELTA, JoinType::Square, EndType::Polygon, 0.01, CLIPPER_PRECISION);
+
+        if (inflated.size() != 1) {
+            std::cerr << "Expected exactly one result from inflation" << std::endl;
+        } else {
+            subjects.push_back(inflated.front());
+        }
     }
 
     for (auto path : subjects) {
